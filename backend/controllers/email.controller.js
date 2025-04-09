@@ -1,21 +1,26 @@
+import mongoose from 'mongoose';
 import Email from "../models/email.model.js";
 import { User } from "../models/user.model.js";
 
 // ✅ Create Email
 export const createEmail = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.id; // Logged-in user's ID from token
     const { to, subject, message } = req.body;
 
     if (!to || !subject || !message) {
       return res.status(400).json({ message: "All fields are required", success: false });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId); // Get user from DB
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
 
     const email = await Email.create({
       to,
-      from: user.email, // store sender's email
+      from: user.email, // sender's email
       subject,
       message,
       userId
@@ -37,6 +42,11 @@ export const createEmail = async (req, res) => {
 export const deleteEmail = async (req, res) => {
   try {
     const emailId = req.params.id;
+
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(emailId)) {
+      return res.status(400).json({ message: "Invalid email ID", success: false });
+    }
 
     const email = await Email.findOneAndDelete({ _id: emailId, userId: req.id });
 
@@ -71,7 +81,14 @@ export const getALLEmailById = async (req, res) => {
 // ✅ Get Single Email by ID
 export const getEmailById = async (req, res) => {
   try {
-    const email = await Email.findById(req.params.id);
+    const { id } = req.params;
+
+    // Validate if the ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid email ID", success: false });
+    }
+
+    const email = await Email.findById(id);
 
     if (!email) {
       return res.status(404).json({ message: "Email not found", success: false });
