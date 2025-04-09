@@ -1,25 +1,29 @@
 import mongoose from "mongoose";
 
-const emailSchema = new mongoose.Schema({
+const emailSchema = new mongoose.Schema(
+  {
     to: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     subject: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     message: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user'
-    }
-}, {
-    timestamps: true // ✅ This adds createdAt and updatedAt fields
-});
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  },
+  {
+    timestamps: true, // Adds createdAt and updatedAt
+  }
+);
 
-export const Email = mongoose.model("Email", emailSchema);
-export default router;
+const Email = mongoose.model("Email", emailSchema);
+
+export default Email;
