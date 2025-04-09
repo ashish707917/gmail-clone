@@ -5,7 +5,8 @@ import {
   getALLEmailById,
   getEmailById
 } from "../controllers/email.controller.js";
-import { isAuthenticated } from "../middlewares/auth.middleware.js";
+import isAuthenticated from "../middlewares/auth.middleware.js"; // Correct the import to match default export
+
 
 const router = express.Router();
 
