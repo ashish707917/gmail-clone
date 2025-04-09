@@ -1,4 +1,4 @@
-import { Email } from "../models/email.model.js";
+import Email from "../models/email.model.js";
 import { User } from "../models/user.model.js";
 
 // ✅ Create Email
