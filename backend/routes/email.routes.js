@@ -1,31 +1,28 @@
-import mongoose from "mongoose";
+import express from "express";
+import {
+  createEmail,
+  deleteEmail,
+  getALLEmailById,
+  getEmailById
+} from "../controllers/email.controller.js";
+import { isAuthenticated } from "../middlewares/auth.middleware.js";
 
-const emailSchema = new mongoose.Schema({
-  to: {
-    type: String,
-    required: true
-  },
-  from: {
-    type: String, // Add sender's email
-    required: true
-  },
-  subject: {
-    type: String,
-    required: true
-  },
-  message: {
-    type: String,
-    required: true,
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user'
-  }
-}, {
-  timestamps: true // createdAt, updatedAt
-});
+const router = express.Router();
 
-export const Email = mongoose.model("Email", emailSchema);
+// Create a new email
+router.post("/", isAuthenticated, createEmail);
+
+// Delete an email by ID
+router.delete("/:id", isAuthenticated, deleteEmail);
+
+// Get all emails sent by the logged-in user
+router.get("/", isAuthenticated, getALLEmailById);
+
+// Get a specific email by ID
+router.get("/:id", isAuthenticated, getEmailById);
+
+export default router;
+
 
 
 

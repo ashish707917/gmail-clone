@@ -22,3 +22,4 @@ const emailSchema = new mongoose.Schema({
 });
 
 export const Email = mongoose.model("Email", emailSchema);
+export default router;
