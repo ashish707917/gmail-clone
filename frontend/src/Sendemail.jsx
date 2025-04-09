@@ -17,7 +17,7 @@ const Sendemail = () => {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:5050/api/v1/email",
+        `${import.meta.env.VITE_API_URL}/api/v1/email`, // Updated API URL
         { to, subject, message },
         { withCredentials: true }
       );
@@ -85,6 +85,7 @@ const Sendemail = () => {
 };
 
 export default Sendemail;
+
 
 
 

@@ -1,5 +1,5 @@
 // App.jsx
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom"; // use HashRouter!
 import './App.css';
 import Inbox from './Inbox';
 import Body from "./Body";
@@ -10,7 +10,7 @@ import Login from "./Login";
 import { Toaster } from 'react-hot-toast';
 import { useSelector } from "react-redux";
 
-const appRouter = createBrowserRouter([
+const appRouter = createHashRouter([
   {
     path: "/",
     element: <Body />,
@@ -36,7 +36,7 @@ const appRouter = createBrowserRouter([
 ]);
 
 function App() {
-  const open = useSelector((state) => state.app.open); // access the open state from Redux
+  const open = useSelector((state) => state.app.open);
 
   return (
     <div className='bg-[#F6F8FC] h-screen overflow-hidden'>
@@ -53,6 +53,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

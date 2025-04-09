@@ -3,16 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
-dotenv.config(); // Load environment variables
+dotenv.config();
 
-// ===============================
-// ✅ Register a New User
-// ===============================
+// ✅ Register
 export const register = async (req, res) => {
   try {
-    let { fullname, email, password } = req.body;
+    // Safe destructuring to avoid 'undefined.trim()' error
+    let { fullname = "", email = "", password = "" } = req.body;
 
-    // Trim and normalize inputs
     fullname = fullname.trim();
     email = email.trim().toLowerCase();
     password = password.trim();
@@ -27,13 +25,11 @@ export const register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const profilePhoto = "https://avatar.iran.liara.run/public/boy"; // Default avatar
-
     const newUser = await User.create({
       fullname,
       email,
       password: hashedPassword,
-      profilephoto: profilePhoto
+      profilephoto: "https://avatar.iran.liara.run/public/boy"
     });
 
     return res.status(201).json({
@@ -45,18 +41,17 @@ export const register = async (req, res) => {
         email: newUser.email
       }
     });
+
   } catch (error) {
     console.error("Registration Error:", error);
     return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
-// ===============================
-// ✅ Login User
-// ===============================
+// ✅ Login
 export const login = async (req, res) => {
   try {
-    let { email, password } = req.body;
+    let { email = "", password = "" } = req.body;
 
     email = email.trim().toLowerCase();
     password = password.trim();
@@ -66,25 +61,21 @@ export const login = async (req, res) => {
     }
 
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Incorrect email or password", success: false });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Incorrect email or password", success: false });
     }
 
-    // ✅ Add email to token payload
-    const tokenData = { userId: user._id, email: user.email };
-    const token = jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: "1d" });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.SECRET_KEY,
+      { expiresIn: "1d" }
+    );
 
-    // ✅ Set token as a secure HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // Set true in production with HTTPS
-      sameSite: "Lax", // Lax works well for local dev
-      maxAge: 24 * 60 * 60 * 1000 // 1 day
+      secure: true,
+      sameSite: "None",
+      maxAge: 24 * 60 * 60 * 1000
     });
 
     return res.status(200).json({
@@ -94,9 +85,7 @@ export const login = async (req, res) => {
         id: user._id,
         fullname: user.fullname,
         email: user.email,
-        profilephoto: user.profilephoto,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt
+        profilephoto: user.profilephoto
       }
     });
 
@@ -106,18 +95,14 @@ export const login = async (req, res) => {
   }
 };
 
-// ===============================
-// ✅ Logout User
-// ===============================
-export const logout = async (req, res) => {
+// ✅ Logout
+export const logout = (req, res) => {
   try {
-    return res.status(200)
-      .clearCookie("token", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict"
-      })
-      .json({ message: "Logged out successfully", success: true });
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None"
+    }).json({ message: "Logged out successfully", success: true });
   } catch (error) {
     console.error("Logout Error:", error);
     return res.status(500).json({ message: "Internal server error", success: false });

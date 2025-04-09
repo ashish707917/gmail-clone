@@ -4,18 +4,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { BiArchiveIn } from 'react-icons/bi';
 import {
   MdDeleteOutline,
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
   MdOutlineAddTask,
-  MdOutlineDriveFileMove,
-  MdOutlineMarkEmailUnread,
-  MdOutlineReport,
-  MdOutlineWatchLater
+  MdOutlineReport
 } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { formatDistanceToNow } from 'date-fns'; // Added for real-time formatting
+import { formatDistanceToNow } from 'date-fns';
 
 const Mail = () => {
   const navigate = useNavigate();
@@ -24,7 +19,7 @@ const Mail = () => {
 
   const deleteHandler = async () => {
     try {
-      const res = await axios.delete(`http://localhost:5050/api/v1/email/${params.id}`, {
+      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/email/${params.id}`, {
         withCredentials: true,
       });
       toast.success(res.data.message);
@@ -33,6 +28,15 @@ const Mail = () => {
       console.log(error);
     }
   };
+
+  // Check if date is valid before using it
+  const isValidDate = (date) => {
+    const parsedDate = new Date(date);
+    return !isNaN(parsedDate); // returns true if it's a valid date
+  };
+
+  const emailDate = selectEmail?.date;
+  const formattedDate = isValidDate(emailDate) ? formatDistanceToNow(new Date(emailDate)) : "Unknown date";
 
   return (
     <div className="flex-1 bg-white rounded-xl mx-5">
@@ -52,59 +56,31 @@ const Mail = () => {
             <MdDeleteOutline size={'20px'} />
           </div>
           <div className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
-            <MdOutlineMarkEmailUnread size={'20px'} />
-          </div>
-          <div className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
-            <MdOutlineWatchLater size={'20px'} />
-          </div>
-          <div className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
             <MdOutlineAddTask size={'20px'} />
           </div>
-          <div className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
-            <MdOutlineDriveFileMove size={'20px'} />
-          </div>
-          <div className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
-            <IoMdMore size={'20px'} />
-          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span>1 to 50</span>
-          <MdKeyboardArrowLeft size="24px" />
-          <MdKeyboardArrowRight size="24px" />
+        <div className="text-gray-700 py-2">{formattedDate} ago</div>
+      </div>
+
+      {/* Content */}
+      <div className="px-4 py-3 border-b">
+        <div className="font-bold text-lg">{selectEmail?.subject}</div>
+        <div className="flex items-center gap-2 text-sm">
+          <span>{selectEmail?.from}</span>
+          <span>&bull;</span>
+          <span>{selectEmail?.date}</span>
         </div>
       </div>
 
-      {/* Email Content */}
-      <div className="h-[90vh] overflow-y-auto p-4">
-        {/* Subject and Inbox */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold">{selectEmail?.subject}</h1>
-            <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded-full">Inbox</span>
-          </div>
-          <p className="text-sm text-gray-500">
-            {selectEmail?.createdAt
-              ? formatDistanceToNow(new Date(selectEmail.createdAt), { addSuffix: true })
-              : ''}
-          </p>
-        </div>
-
-        {/* Sender Info */}
-        <div className="mb-6">
-          <p className="text-sm text-gray-800 font-medium">{selectEmail?.to}</p>
-          <p className="text-xs text-gray-500">to me</p>
-        </div>
-
-        {/* Email Body */}
-        <div className="my-10">
-          <p>{selectEmail?.message}</p>
-        </div>
-      </div>
+      {/* Body */}
+      <div className="px-4 py-6">{selectEmail?.body}</div>
     </div>
   );
 };
 
 export default Mail;
+
+
 
 
 

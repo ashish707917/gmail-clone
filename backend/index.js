@@ -1,46 +1,74 @@
 import express from "express";
-import dotenv from "dotenv";
-import Connect from "./DB/Connect.js";
-import cookieParser from "cookie-parser";
 import cors from "cors";
-import userRoute from "./routes/user.route.js";
-import emailRoute from "./routes/email.route.js";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import mongoose from "mongoose";
 
 // Load environment variables
 dotenv.config();
-
-// Connect to MongoDB
-Connect().catch(err => {
-  console.error("Database connection failed:", err);
-  process.exit(1); // Stop server if DB connection fails
-});
-
-const PORT = process.env.PORT || 5050;
 const app = express();
+const PORT = process.env.PORT || 5050;
 
-// ✅ Secure CORS settings — needs to be set FIRST
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:5173",
-  credentials: true
-}));
+// ✅ Allowed frontend origins (no trailing slashes, no invalid characters)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ashish707917.github.io"
+];
+console.log("✅ Allowed Origins:", allowedOrigins);
 
-// ✅ Then other middleware
-app.use(express.urlencoded({ extended: true }));
+// ✅ Secure CORS setup
+const corsOptions = {
+  origin: function (origin, callback) {
+    try {
+      if (!origin) return callback(null, true); // Allow server-to-server or tools like curl/postman
+
+      const sanitizedOrigin = origin.trim();
+      if (allowedOrigins.includes(sanitizedOrigin)) {
+        callback(null, true);
+      } else {
+        console.error("❌ CORS blocked origin:", sanitizedOrigin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    } catch (err) {
+      console.error("❌ CORS error:", err);
+      callback(err);
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+// ✅ Middleware
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Preflight request support
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ API Routes
-app.use("/api/v1/user", userRoute);
-app.use("/api/v1/email", emailRoute);
+// ✅ MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected successfully."))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// ✅ Global Error Handler
-app.use((err, req, res, next) => {
-  console.error("Server Error:", err);
-  res.status(500).json({ message: "Internal server error" });
+// ✅ Routes
+import userRoutes from "./routes/user.routes.js";
+import emailRoutes from "./routes/email.routes.js";
+
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/email", emailRoutes);
+
+// ✅ Root route
+app.get("/", (req, res) => {
+  res.send("📬 Gmail Clone Backend is running!");
 });
 
-// ✅ Start Server
+// ✅ Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
+
+
+
+
+
 

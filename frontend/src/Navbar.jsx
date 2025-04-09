@@ -15,7 +15,7 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.post('http://localhost:5050/api/v1/user/logout', {}, {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/user/logout`, {}, {
         withCredentials: true
       });
       toast.success(res.data.message);
@@ -71,4 +71,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
