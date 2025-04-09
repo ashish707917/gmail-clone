@@ -11,11 +11,14 @@ export const createEmail = async (req, res) => {
       return res.status(400).json({ message: "All fields are required", success: false });
     }
 
+    const user = await User.findById(userId);
+
     const email = await Email.create({
       to,
+      from: user.email, // store sender's email
       subject,
       message,
-      userId,
+      userId
     });
 
     return res.status(201).json({
@@ -35,10 +38,6 @@ export const deleteEmail = async (req, res) => {
   try {
     const emailId = req.params.id;
 
-    if (!emailId) {
-      return res.status(400).json({ message: "Email ID is required", success: false });
-    }
-
     const email = await Email.findOneAndDelete({ _id: emailId, userId: req.id });
 
     if (!email) {
@@ -56,7 +55,7 @@ export const deleteEmail = async (req, res) => {
   }
 };
 
-// ✅ Get All Emails sent by logged-in user
+// ✅ Get All Emails by user
 export const getALLEmailById = async (req, res) => {
   try {
     const userId = req.id;
@@ -84,4 +83,5 @@ export const getEmailById = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
+
 

@@ -1,36 +1,32 @@
-import express from 'express';
-import {
-  createEmail,
-  deleteEmail,
-  getALLEmailById,
-  getEmailById, // ⬅️ add this controller
-} from '../controllers/email.controller.js';
-import isAuthenticated from '../middlewares/auth.middleware.js';
+import mongoose from "mongoose";
 
-const router = express.Router();
+const emailSchema = new mongoose.Schema({
+  to: {
+    type: String,
+    required: true
+  },
+  from: {
+    type: String, // Add sender's email
+    required: true
+  },
+  subject: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user'
+  }
+}, {
+  timestamps: true // createdAt, updatedAt
+});
 
-// @route   POST /api/v1/email
-// @desc    Create a new email
-// @access  Private
-router.post('/', isAuthenticated, createEmail);
+export const Email = mongoose.model("Email", emailSchema);
 
-// @route   DELETE /api/v1/email/:id
-// @desc    Delete an email by ID
-// @access  Private
-router.delete('/:id', isAuthenticated, deleteEmail);
-
-// @route   GET /api/v1/email/getallemails
-// @desc    Get all emails for the logged-in user
-// @access  Private
-router.get('/getallemails', isAuthenticated, getALLEmailById);
-
-// ✅ ADD THIS ROUTE
-// @route   GET /api/v1/email/:id
-// @desc    Get a single email by ID
-// @access  Private
-router.get('/:id', isAuthenticated, getEmailById);
-
-export default router;
 
 
 
