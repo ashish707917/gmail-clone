@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 5050;
 // ✅ Allowed frontend origins (no trailing slashes, no invalid characters)
 const allowedOrigins = [
   "http://localhost:5173",
+  'http://localhost:5174',
   "https://ashish707917.github.io"
 ];
 console.log("✅ Allowed Origins:", allowedOrigins);
