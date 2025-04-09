@@ -1,42 +1,59 @@
-import React from 'react';
-import { IoMdArrowBack, IoMdMore } from 'react-icons/io';
+import React, { useEffect, useState } from 'react';
+import { IoMdArrowBack } from 'react-icons/io';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BiArchiveIn } from 'react-icons/bi';
 import {
+  BiArchiveIn,
   MdDeleteOutline,
   MdOutlineAddTask,
   MdOutlineReport
 } from 'react-icons/md';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 const Mail = () => {
   const navigate = useNavigate();
-  const { selectEmail } = useSelector(store => store.app);
-  const params = useParams();
+  const { id } = useParams();
+
+  const [email, setEmail] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchEmail = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/email/${id}`, {
+        withCredentials: true,
+      });
+      setEmail(res.data.email);
+    } catch (err) {
+      console.error("❌ Error fetching email:", err);
+      toast.error("Failed to load email.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmail();
+  }, [id]);
 
   const deleteHandler = async () => {
     try {
-      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/email/${params.id}`, {
+      const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/email/${id}`, {
         withCredentials: true,
       });
       toast.success(res.data.message);
       navigate('/');
     } catch (error) {
       console.log(error);
+      toast.error("Failed to delete email");
     }
   };
 
-  // Check if date is valid before using it
-  const isValidDate = (date) => {
-    const parsedDate = new Date(date);
-    return !isNaN(parsedDate); // returns true if it's a valid date
-  };
+  const formattedDate = email?.createdAt
+    ? formatDistanceToNow(new Date(email.createdAt))
+    : "Unknown date";
 
-  const emailDate = selectEmail?.date;
-  const formattedDate = isValidDate(emailDate) ? formatDistanceToNow(new Date(emailDate)) : "Unknown date";
+  if (loading) return <div className="p-4">Loading...</div>;
 
   return (
     <div className="flex-1 bg-white rounded-xl mx-5">
@@ -64,21 +81,23 @@ const Mail = () => {
 
       {/* Content */}
       <div className="px-4 py-3 border-b">
-        <div className="font-bold text-lg">{selectEmail?.subject}</div>
-        <div className="flex items-center gap-2 text-sm">
-          <span>{selectEmail?.from}</span>
+        <div className="font-bold text-lg">{email?.subject}</div>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <span>{email?.to}</span>
           <span>&bull;</span>
-          <span>{selectEmail?.date}</span>
+          <span>{new Date(email?.createdAt).toLocaleString()}</span>
         </div>
       </div>
 
       {/* Body */}
-      <div className="px-4 py-6">{selectEmail?.body}</div>
+      <div className="px-4 py-6 whitespace-pre-wrap">{email?.message}</div>
     </div>
   );
 };
 
 export default Mail;
+
+
 
 
 

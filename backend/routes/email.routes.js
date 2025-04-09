@@ -2,9 +2,10 @@ import express from 'express';
 import {
   createEmail,
   deleteEmail,
-  getALLEmailById
+  getALLEmailById,
+  getEmailById, // ⬅️ add this controller
 } from '../controllers/email.controller.js';
-import isAuthenticated from '../middlewares/auth.middleware.js'; // corrected path
+import isAuthenticated from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
@@ -23,6 +24,13 @@ router.delete('/:id', isAuthenticated, deleteEmail);
 // @access  Private
 router.get('/getallemails', isAuthenticated, getALLEmailById);
 
+// ✅ ADD THIS ROUTE
+// @route   GET /api/v1/email/:id
+// @desc    Get a single email by ID
+// @access  Private
+router.get('/:id', isAuthenticated, getEmailById);
+
 export default router;
+
 
 

@@ -15,13 +15,13 @@ export const createEmail = async (req, res) => {
       to,
       subject,
       message,
-      userId
+      userId,
     });
 
     return res.status(201).json({
       email,
       message: "Email sent successfully",
-      success: true
+      success: true,
     });
 
   } catch (error) {
@@ -47,7 +47,7 @@ export const deleteEmail = async (req, res) => {
 
     return res.status(200).json({
       message: "Email Deleted Successfully",
-      success: true
+      success: true,
     });
 
   } catch (error) {
@@ -56,12 +56,10 @@ export const deleteEmail = async (req, res) => {
   }
 };
 
-// ✅ Get All Sent Emails (by logged-in user)
+// ✅ Get All Emails sent by logged-in user
 export const getALLEmailById = async (req, res) => {
   try {
     const userId = req.id;
-
-    // Show only emails SENT BY the logged-in user
     const emails = await Email.find({ userId }).sort({ createdAt: -1 });
 
     return res.status(200).json({ emails, success: true });
@@ -71,4 +69,19 @@ export const getALLEmailById = async (req, res) => {
   }
 };
 
+// ✅ Get Single Email by ID
+export const getEmailById = async (req, res) => {
+  try {
+    const email = await Email.findById(req.params.id);
+
+    if (!email) {
+      return res.status(404).json({ message: "Email not found", success: false });
+    }
+
+    return res.status(200).json({ email, success: true });
+  } catch (error) {
+    console.error("Error fetching email:", error);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
 
