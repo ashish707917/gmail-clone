@@ -1,31 +1,54 @@
-import React from 'react';
-import { IoMdArrowBack } from 'react-icons/io';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BiArchiveIn } from 'react-icons/bi';
-import {
-  MdDeleteOutline,
-  MdOutlineAddTask,
-  MdOutlineReport
-} from 'react-icons/md';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setSelectEmail } from '../redux/appSlice';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
 
 const Mail = () => {
   const navigate = useNavigate();
-  const { selectEmail } = useSelector(store => store.app);
+  const { selectEmail } = useSelector((state) => state.app);
+  const dispatch = useDispatch();
   const params = useParams();
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEmail = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/email/${params.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        dispatch(setSelectEmail(response.data.email));
+        setError(null); // Clear any previous errors
+      } catch (error) {
+        setError("Error fetching email");
+        console.error("Error fetching email:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmail();
+  }, [params.id, dispatch]);
 
   const deleteHandler = async () => {
     try {
       const res = await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/email/${params.id}`, {
-        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       toast.success(res.data.message);
       navigate('/');
     } catch (error) {
       console.log(error);
+      toast.error("Error deleting email");
     }
   };
 
@@ -35,9 +58,15 @@ const Mail = () => {
   };
 
   const emailDate = selectEmail?.createdAt;
-  const formattedDate = isValidDate(emailDate)
-    ? formatDistanceToNow(new Date(emailDate))
-    : "Unknown date";
+  const formattedDate = isValidDate(emailDate) ? formatDistanceToNow(new Date(emailDate)) : "Unknown date";
+
+  if (loading) {
+    return <div>Loading...</div>;  // You can replace this with a spinner or skeleton loader
+  }
+
+  if (error) {
+    return <div>{error}</div>;  // Display error message if the email couldn't be fetched
+  }
 
   return (
     <div className="flex-1 bg-white rounded-xl mx-5">
@@ -55,9 +84,6 @@ const Mail = () => {
           </div>
           <div onClick={deleteHandler} className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
             <MdDeleteOutline size={'20px'} />
-          </div>
-          <div className="p-2 rounded-full hover:bg-gray-200 cursor-pointer">
-            <MdOutlineAddTask size={'20px'} />
           </div>
         </div>
         <div className="text-gray-700 py-2">{formattedDate} ago</div>
@@ -86,6 +112,7 @@ const Mail = () => {
 };
 
 export default Mail;
+
 
 
 
