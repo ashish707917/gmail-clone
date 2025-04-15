@@ -1,14 +1,20 @@
 import express from "express";
-import { login, register, logout } from "../controllers/user.controllers.js";
-import isAuthenticated from "../middlewares/auth.middleware.js";
+import { isAuthenticated } from "../middlewares/auth.middleware.js";
+import { register, login } from '../controllers/user.controllers.js';
 
 const router = express.Router();
 
-router.route("/register").post(register);
-router.route("/login").post(login);
-router.route("/logout").post(logout);
+router.post("/register", register);
+router.post("/login", login);
+
+// Protect the "me" route
+router.get("/me", isAuthenticated, (req, res) => {
+  return res.status(200).json({ success: true, user: req.user });
+});
 
 export default router;
+
+
 
 
 

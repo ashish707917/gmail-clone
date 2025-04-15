@@ -8,9 +8,7 @@ dotenv.config();
 // ✅ Register
 export const register = async (req, res) => {
   try {
-    // Safe destructuring to avoid 'undefined.trim()' error
     let { fullname = "", email = "", password = "" } = req.body;
-
     fullname = fullname.trim();
     email = email.trim().toLowerCase();
     password = password.trim();
@@ -52,7 +50,6 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     let { email = "", password = "" } = req.body;
-
     email = email.trim().toLowerCase();
     password = password.trim();
 
@@ -108,3 +105,4 @@ export const logout = (req, res) => {
     return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
+

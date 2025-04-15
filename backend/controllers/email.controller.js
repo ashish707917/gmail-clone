@@ -47,7 +47,7 @@ export const deleteEmail = async (req, res) => {
       return res.status(404).json({ message: "Email not found", success: false });
     }
 
-    return res.status(200).json({ message: "Email Deleted Successfully", success: true });
+    return res.status(200).json({ message: "Email deleted successfully", success: true });
   } catch (error) {
     console.error("Error deleting email:", error);
     return res.status(500).json({ message: "Internal Server Error", success: false });
@@ -77,7 +77,9 @@ export const getEmailById = async (req, res) => {
     }
 
     const email = await Email.findById(id);
-    if (!email) {
+
+    // ✅ Check if the email belongs to the logged-in user
+    if (!email || email.userId.toString() !== req.id) {
       return res.status(404).json({ message: "Email not found", success: false });
     }
 
@@ -87,6 +89,7 @@ export const getEmailById = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
+
 
 
 
