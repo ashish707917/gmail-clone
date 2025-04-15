@@ -2,12 +2,7 @@ import jwt from "jsonwebtoken";
 
 const isAuthenticated = (req, res, next) => {
   try {
-    let token = req.cookies?.token;
-
-    // ✅ Also check Authorization header
-    if (!token && req.headers.authorization?.startsWith("Bearer")) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+    const token = req.cookies?.token;  // Use token from cookies
 
     if (!token) {
       return res.status(401).json({ message: "No token provided", success: false });
@@ -29,4 +24,6 @@ const isAuthenticated = (req, res, next) => {
 };
 
 export default isAuthenticated;
+
+
 
