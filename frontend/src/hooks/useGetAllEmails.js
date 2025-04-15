@@ -7,9 +7,15 @@ const useGetAllEmails = () => {
 
   const fetchEmails = async () => {
     try {
+      const token = localStorage.getItem("token"); // Get JWT from localStorage
+
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/email/getallemails`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ Send token here
+        },
         withCredentials: true,
       });
+
       dispatch(setEmails(res.data.emails));
     } catch (error) {
       console.log("❌ Error fetching emails:", error.response?.data || error.message);
@@ -20,6 +26,7 @@ const useGetAllEmails = () => {
 };
 
 export default useGetAllEmails;
+
 
 
 
