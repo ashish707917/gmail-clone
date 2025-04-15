@@ -2,14 +2,14 @@ import React from "react";
 import { MdCropSquare, MdOutlineStarBorder } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { setselectEmail } from "./redux/appSlice";
+import { setSelectEmail } from "./redux/appSlice";
 
 const Email = ({ email }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const openMail = () => {
-    dispatch(setselectEmail(email));
+    dispatch(setSelectEmail(email));
     navigate(`/mail/${email._id}`);
   };
 
