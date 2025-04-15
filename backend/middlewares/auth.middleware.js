@@ -1,35 +1,19 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import { User } from "../models/user.model.js";
 
-dotenv.config();
+export const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1]; // Bearer <token>
 
-// Middleware to check if the user is authenticated
-export const isAuthenticated = async (req, res, next) => {
+  if (!token) {
+    return res.status(401).json({ message: "Access denied. No token provided.", success: false });
+  }
+
   try {
-    // Get token from the Authorization header
-    const token = req.headers.authorization?.split(" ")[1]; // Bearer <token>
-
-    // Check if token is missing
-    if (!token) {
-      return res.status(401).json({ message: "Authorization token is required", success: false });
-    }
-
-    // Verify the token
-    const decoded = jwt.verify(token, process.env.SECRET_KEY);
-
-    // Find the user by the decoded user ID
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ message: "User not found", success: false });
-    }
-
-    // Attach user information to the request
-    req.user = user;
-    next(); // Proceed to the next middleware or route handler
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.id = decoded.id; // Attach user ID from the token to the request object
+    next();
   } catch (error) {
-    console.error("Authentication Error:", error);
-    return res.status(500).json({ message: "Internal server error", success: false });
+    console.error("JWT verification error:", error);
+    return res.status(401).json({ message: "Invalid token.", success: false });
   }
 };
 

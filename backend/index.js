@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 5050;
 
 // ✅ Fixed: Allowed Origins (trimmed, hardcoded)
 const allowedOrigins = [
-  'http://localhost:5173',
-  'https://ashish707917.github.io'
+  'http://localhost:5173',   // Local frontend
+  'https://ashish707917.github.io' // Production frontend (optional)
 ];
 
 app.use(express.json());
@@ -29,7 +29,7 @@ app.use(
         callback(new Error("CORS not allowed for this origin: " + origin));
       }
     },
-    credentials: true,
+    credentials: true,  // Allow cookies and other credentials
   })
 );
 
@@ -53,7 +53,6 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
 });
-
 
 
 

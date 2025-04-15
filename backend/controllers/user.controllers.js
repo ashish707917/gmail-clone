@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// ✅ Register
+// Register user
 export const register = async (req, res) => {
   try {
     let { fullname = "", email = "", password = "" } = req.body;
@@ -27,7 +27,7 @@ export const register = async (req, res) => {
       fullname,
       email,
       password: hashedPassword,
-      profilephoto: "https://avatar.iran.liara.run/public/boy"
+      profilephoto: "https://avatar.iran.liara.run/public/boy",
     });
 
     return res.status(201).json({
@@ -36,17 +36,16 @@ export const register = async (req, res) => {
       user: {
         id: newUser._id,
         fullname: newUser.fullname,
-        email: newUser.email
-      }
+        email: newUser.email,
+      },
     });
-
   } catch (error) {
     console.error("Registration Error:", error);
     return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
-// ✅ Login
+// Login user
 export const login = async (req, res) => {
   try {
     let { email = "", password = "" } = req.body;
@@ -72,7 +71,7 @@ export const login = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "None",
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
@@ -82,27 +81,27 @@ export const login = async (req, res) => {
         id: user._id,
         fullname: user.fullname,
         email: user.email,
-        profilephoto: user.profilephoto
-      }
+        profilephoto: user.profilephoto,
+      },
     });
-
   } catch (error) {
     console.error("Login Error:", error);
     return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
-// ✅ Logout
+// Logout user
 export const logout = (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
       secure: true,
-      sameSite: "None"
+      sameSite: "None",
     }).json({ message: "Logged out successfully", success: true });
   } catch (error) {
     console.error("Logout Error:", error);
     return res.status(500).json({ message: "Internal server error", success: false });
   }
 };
+
 

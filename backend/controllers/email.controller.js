@@ -1,15 +1,25 @@
 import mongoose from 'mongoose';
-import Email from "../models/email.model.js";
+import { Email } from "../models/email.model.js";
 import { User } from "../models/user.model.js";
+
+// Helper function for handling errors
+const handleError = (res, error, customMessage = "Internal Server Error") => {
+  console.error(error);
+  return res.status(500).json({ message: customMessage, success: false });
+};
 
 // ✅ Create Email
 export const createEmail = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.id;  // Ensure `req.id` is present (comes from authentication middleware)
     const { to, subject, message } = req.body;
 
     if (!to || !subject || !message) {
       return res.status(400).json({ message: "All fields are required", success: false });
+    }
+
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated", success: false });
     }
 
     const user = await User.findById(userId);
@@ -27,8 +37,7 @@ export const createEmail = async (req, res) => {
 
     return res.status(201).json({ email, message: "Email sent successfully", success: true });
   } catch (error) {
-    console.error("Error creating email:", error);
-    return res.status(500).json({ message: "Internal Server Error", success: false });
+    handleError(res, error, "Error creating email");
   }
 };
 
@@ -49,21 +58,24 @@ export const deleteEmail = async (req, res) => {
 
     return res.status(200).json({ message: "Email deleted successfully", success: true });
   } catch (error) {
-    console.error("Error deleting email:", error);
-    return res.status(500).json({ message: "Internal Server Error", success: false });
+    handleError(res, error, "Error deleting email");
   }
 };
 
-// ✅ Get All Emails by user
+// ✅ Get All Emails by User
 export const getALLEmailById = async (req, res) => {
   try {
     const userId = req.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated", success: false });
+    }
+
     const emails = await Email.find({ userId }).sort({ createdAt: -1 });
 
     return res.status(200).json({ emails, success: true });
   } catch (error) {
-    console.error("Error fetching emails:", error);
-    return res.status(500).json({ message: "Internal Server Error", success: false });
+    handleError(res, error, "Error fetching emails");
   }
 };
 
@@ -85,8 +97,7 @@ export const getEmailById = async (req, res) => {
 
     return res.status(200).json({ email, success: true });
   } catch (error) {
-    console.error("Error fetching email:", error);
-    return res.status(500).json({ message: "Internal Server Error", success: false });
+    handleError(res, error, "Error fetching email");
   }
 };
 
