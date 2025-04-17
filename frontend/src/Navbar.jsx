@@ -15,19 +15,29 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/user/logout`, {}, {
-        withCredentials: true
-      });
+      const token = localStorage.getItem("token"); // Get JWT token
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/user/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       toast.success(res.data.message);
-      dispatch(setAuthUser(null));
+      dispatch(setAuthUser(null)); // Clear Redux user
+      localStorage.removeItem("token"); // Clear token
     } catch (error) {
-      console.log(error);
+      console.log("Logout failed", error);
+      toast.error("Logout failed");
     }
   };
 
   useEffect(() => {
     dispatch(setSearchText(text));
-  }, [text]);
+  }, [text, dispatch]);
 
   return (
     <div className="flex items-center justify-between bg-gray-100 p-3 shadow-md">
@@ -42,7 +52,7 @@ const Navbar = () => {
         <h1 className="text-xl font-semibold text-red-500">Gmail</h1>
       </div>
 
-      {/* Middle Section: Always show search bar */}
+      {/* Middle Section: Search bar */}
       <div className="flex items-center bg-white p-2 rounded-md shadow-sm w-1/2 border border-gray-300">
         <IoIosSearch className="w-5 h-5 text-gray-500" />
         <input
@@ -59,7 +69,9 @@ const Navbar = () => {
         <CiCircleQuestion className="w-6 h-6 cursor-pointer text-gray-600" />
         <IoIosSettings className="w-6 h-6 cursor-pointer text-gray-600" />
         <TbGridDots className="w-6 h-6 cursor-pointer text-gray-600" />
-        <button onClick={logoutHandler} className="underline cursor-pointer">logout</button>
+        <button onClick={logoutHandler} className="underline cursor-pointer">
+          Logout
+        </button>
         <img
           src={user?.profilephoto || "https://i.pravatar.cc/150?u=guest"}
           alt="profile"
@@ -71,5 +83,6 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
 
 

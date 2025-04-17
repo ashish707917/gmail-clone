@@ -15,11 +15,22 @@ const Sendemail = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No token found. Please login.");
+      return;
+    }
+
     try {
       await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/email`, // Updated API URL
         { to, subject, message },
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
       );
       alert("Email sent successfully");
 
@@ -85,6 +96,7 @@ const Sendemail = () => {
 };
 
 export default Sendemail;
+
 
 
 

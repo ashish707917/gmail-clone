@@ -32,6 +32,7 @@ const Login = () => {
       });
 
       if (res.data.success) {
+        localStorage.setItem("token", res.data.token); // ✅ Save token in localStorage
         dispatch(setAuthUser(res.data.user));
         await fetchEmails(); // ✅ Fetch emails for this user
         toast.success(res.data.message);
@@ -95,6 +96,5 @@ const Login = () => {
 };
 
 export default Login;
-
 
 

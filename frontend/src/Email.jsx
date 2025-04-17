@@ -9,16 +9,14 @@ const Email = ({ email }) => {
   const dispatch = useDispatch();
 
   const openMail = () => {
-    dispatch(setSelectEmail(email));
-    navigate(`/mail/${email._id}`);
+    dispatch(setSelectEmail(email));  // Store selected email in Redux
+    navigate(`/mail/${email._id}`);   // Navigate to email details page
   };
 
-  // Format the createdAt timestamp
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
-    
-    // If today, show only time
+
     if (
       date.getDate() === now.getDate() &&
       date.getMonth() === now.getMonth() &&
@@ -27,7 +25,6 @@ const Email = ({ email }) => {
       return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    // If not today, show date (e.g., "Apr 9")
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
@@ -58,5 +55,6 @@ const Email = ({ email }) => {
 };
 
 export default Email;
+
 
 

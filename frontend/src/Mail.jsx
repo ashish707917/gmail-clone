@@ -5,6 +5,10 @@ import { setSelectEmail } from './redux/appSlice';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { IoMdArrowBack } from 'react-icons/io';
+import { MdDeleteOutline } from 'react-icons/md';
+import { BiArchiveIn } from 'react-icons/bi';
+import { MdOutlineReport } from 'react-icons/md';
 
 const Mail = () => {
   const navigate = useNavigate();
