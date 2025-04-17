@@ -6,6 +6,10 @@ export const registerUser = async (req, res) => {
   try {
     const { fullname, email, password } = req.body;
 
+    if (!fullname || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: "User already exists" });
 
@@ -14,7 +18,17 @@ export const registerUser = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    res.status(201).json({ token });
+    res.status(201).json({
+      success: true,
+      message: "Registration successful",
+      token,
+      user: {
+        _id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        profilephoto: user.profilephoto || "",
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -25,6 +39,10 @@ export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
     const user = await User.findOne({ email });
     if (!user || !(await user.verifyPassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -32,13 +50,23 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        _id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        profilephoto: user.profilephoto || "",
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Middleware
+// Middleware to protect routes
 export const authenticate = (req, res, next) => {
   const authHeader = req.header("Authorization");
   if (!authHeader) return res.status(401).json({ message: "Access denied. No token provided." });
@@ -56,11 +84,13 @@ export const authenticate = (req, res, next) => {
 // Logout
 export const logoutUser = (req, res) => {
   try {
+    // Since we're using token-based auth, logout is just a client-side token removal
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
