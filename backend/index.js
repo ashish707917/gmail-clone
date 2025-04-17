@@ -3,59 +3,34 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import userRoutes from "./routes/user.routes.js";  // Adjust if needed
+import emailRoutes from "./routes/email.routes.js"; // Adjust if needed
 
-// env vars
 dotenv.config();
+
 const app = express();
-const PORT = process.env.PORT || 5050;
+const PORT = process.env.PORT || 5000;
 
-// ✅ Fixed: Allowed Origins (trimmed, hardcoded)
-const allowedOrigins = [
-  'http://localhost:5173',   // Local frontend
-  'https://ashish707917.github.io' // Production frontend (optional)
-];
-
+// Middlewares
+app.use(cors({
+  origin: ["http://localhost:5173", "https://your-frontend-domain.com"], // Allow your frontend
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 
-// ✅ CORS Setup
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error("CORS error - blocked origin:", origin);
-        callback(new Error("CORS not allowed for this origin: " + origin));
-      }
-    },
-    credentials: true,  // Allow cookies and other credentials
-  })
-);
-
-// ✅ MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected successfully."))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
-
-// ✅ Routes
-import userRoutes from "./routes/user.routes.js";
-import emailRoutes from "./routes/email.routes.js";
-
+// Routes
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/email", emailRoutes);
+app.use("/api/v1/email", emailRoutes);  // If you're using separate email routes
 
-app.get("/", (req, res) => {
-  res.send("Gmail Clone Backend is running!");
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-});
-
-
-
-
-
-
+// Connect DB and Start Server
+mongoose.connect(process.env.MONGO_URI)  // No need to specify deprecated options
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("❌ MongoDB connection failed:", err.message);
+  });

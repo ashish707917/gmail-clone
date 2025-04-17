@@ -1,22 +1,24 @@
 import express from "express";
-import { createEmail, deleteEmail, getALLEmailById, getEmailById } from "../controllers/email.controller.js";
-import { verifyToken } from "../middlewares/auth.middleware.js"; // Assuming you have an authentication middleware to verify JWT
+import {
+  createEmail,
+  deleteEmail,
+  getALLEmailById,
+  getEmailById
+} from "../controllers/email.controller.js";
+
+import { authenticate } from "../middlewares/auth.middleware.js"; // This now works
 
 const router = express.Router();
 
-// ✅ Route to create an email
-router.post("/", verifyToken, createEmail);
-
-// ✅ Route to get all emails for the authenticated user
-router.get("/", verifyToken, getALLEmailById);
-
-// ✅ Route to get a specific email by ID
-router.get("/:id", verifyToken, getEmailById);
-
-// ✅ Route to delete an email by ID
-router.delete("/:id", verifyToken, deleteEmail);
+router.post("/", authenticate, createEmail);
+router.get("/", authenticate, getALLEmailById);
+router.get("/:id", authenticate, getEmailById);
+router.delete("/:id", authenticate, deleteEmail);
 
 export default router;
+
+
+
 
 
 
