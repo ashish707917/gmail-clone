@@ -3,8 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import userRoutes from "./routes/user.routes.js";  // Adjust if needed
-import emailRoutes from "./routes/email.routes.js"; // Adjust if needed
+import userRoutes from "./routes/user.routes.js";  // User routes
+import emailRoutes from "./routes/email.routes.js"; // Email routes (if applicable)
 
 dotenv.config();
 
@@ -13,18 +13,18 @@ const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors({
-  origin: ["http://localhost:5173", "https://your-frontend-domain.com"], // Allow your frontend
-  credentials: true,
+  origin: ["http://localhost:5173", "https://ashish707917.github.io"], // Frontend URLs
+  credentials: true,  // Allow sending cookies
 }));
-app.use(express.json());
-app.use(cookieParser());
+app.use(express.json()); // For parsing application/json
+app.use(cookieParser()); // For parsing cookies
 
 // Routes
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/email", emailRoutes);  // If you're using separate email routes
+app.use("/api/v1/email", emailRoutes);  // If using email routes, ensure they are set up properly
 
-// Connect DB and Start Server
-mongoose.connect(process.env.MONGO_URI)  // No need to specify deprecated options
+// Connect to MongoDB and start the server
+mongoose.connect(process.env.MONGO_URI)  // MongoDB URI from .env file
   .then(() => {
     console.log("✅ MongoDB connected");
     app.listen(PORT, () => {
@@ -34,3 +34,9 @@ mongoose.connect(process.env.MONGO_URI)  // No need to specify deprecated option
   .catch(err => {
     console.error("❌ MongoDB connection failed:", err.message);
   });
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong!" });
+});
