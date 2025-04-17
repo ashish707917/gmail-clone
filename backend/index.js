@@ -9,7 +9,7 @@ import emailRoutes from "./routes/email.routes.js"; // Email routes (if applicab
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 
 // Middlewares
 app.use(cors({
