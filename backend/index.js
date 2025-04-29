@@ -3,8 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
-import userRoutes from "./routes/user.routes.js";
-import emailRoutes from "./routes/email.routes.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 

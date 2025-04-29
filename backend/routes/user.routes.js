@@ -1,5 +1,10 @@
-import express from 'express';
-import { registerUser,logoutUser, loginUser, authenticate } from "../controllers/user.controllers.js";  // Correct import
+import express from "express";
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+} from "../controllers/user.controller.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -9,10 +14,14 @@ router.post("/register", registerUser);
 // Login route
 router.post("/login", loginUser);
 
-// Logout route (If applicable, otherwise skip this)
-router.post("/logout", authenticate, logoutUser);  // Assuming you have a logoutUser function
+// Logout route
+router.post("/logout", logoutUser);
+
+// Example of a protected route
+// router.get("/profile", authenticate, getProfile);
 
 export default router;
+
 
 
 
