@@ -8,4 +8,5 @@ const emailSchema = new mongoose.Schema({
   sentAt: { type: Date, default: Date.now },
 });
 
-export const Email = mongoose.model("Email", emailSchema);
+// Prevent OverwriteModelError on re-import
+export const Email = mongoose.models.Email || mongoose.model("Email", emailSchema);

@@ -20,7 +20,6 @@ userSchema.methods.verifyPassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-export const User = mongoose.model("User", userSchema);
-
-
+// Prevent OverwriteModelError on re-import
+export const User = mongoose.models.User || mongoose.model("User", userSchema);
 
