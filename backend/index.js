@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import userRoutes from "./routes/user.routes.js";  // <-- Add this import for user routes
+import emailRoutes from "./routes/email.routes.js"; // <-- Add this import for email routes
 
 dotenv.config();
 
@@ -23,8 +25,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
-app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/email", emailRoutes);
+app.use("/api/v1/user", userRoutes);  // User routes
+app.use("/api/v1/email", emailRoutes);  // Email routes
 
 // Connect to MongoDB and start the server
 mongoose.connect(process.env.MONGO_URI)
@@ -60,91 +62,6 @@ userSchema.methods.verifyPassword = async function(password) {
 };
 
 const User = mongoose.model('User', userSchema);
-
-// Register route
-app.post("/api/v1/user/register", async (req, res) => {
-  try {
-    const { fullname, email, password } = req.body;
-
-    if (!fullname || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const userExists = await User.findOne({ email });
-    if (userExists) return res.status(400).json({ message: "User already exists" });
-
-    const user = new User({ fullname, email, password });
-    await user.save();
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-    res.status(201).json({
-      success: true,
-      message: "Registration successful",
-      token,
-      user: {
-        _id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        profilephoto: user.profilephoto || "",
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Login route
-app.post("/api/v1/user/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
-    }
-
-    const user = await User.findOne({ email });
-    if (!user || !(await user.verifyPassword(password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-    res.status(200).json({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        _id: user._id,
-        fullname: user.fullname,
-        email: user.email,
-        profilephoto: user.profilephoto || "",
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Middleware to protect routes
-export const authenticate = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-  if (!authHeader) return res.status(401).json({ message: "Access denied. No token provided." });
-
-  const token = authHeader.split(" ")[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(400).json({ message: "Invalid token." });
-  }
-};
-
-// Logout route
-app.post("/api/v1/user/logout", (req, res) => {
-  res.status(200).json({ message: "Logged out successfully" });
-});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
