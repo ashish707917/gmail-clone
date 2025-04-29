@@ -3,10 +3,10 @@ import {
   createEmail,
   deleteEmail,
   getALLEmailById,
-  getEmailById
+  getEmailById,
 } from "../controllers/email.controller.js";
 
-import { authenticate } from "../middlewares/auth.middleware.js"; // This now works
+import { authenticate } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -16,8 +16,6 @@ router.get("/:id", authenticate, getEmailById);
 router.delete("/:id", authenticate, deleteEmail);
 
 export default router;
-
-
 
 
 
