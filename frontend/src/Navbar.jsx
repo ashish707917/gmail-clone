@@ -14,23 +14,30 @@ const Navbar = () => {
   const dispatch = useDispatch();
 
   const logoutHandler = async () => {
+    const token = localStorage.getItem("token");
+    console.log("Token before logout:", token);  // Check the token value
+
+    if (!token) {
+      toast.error("No token found. Please log in again.");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token"); // Get JWT token
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/v1/user/logout`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Send the token in the Authorization header
           },
         }
       );
 
-      toast.success(res.data.message);
-      dispatch(setAuthUser(null)); // Clear Redux user
-      localStorage.removeItem("token"); // Clear token
+      toast.success(res.data.message); // Show success toast
+      dispatch(setAuthUser(null)); // Clear Redux user state
+      localStorage.removeItem("token"); // Clear token from localStorage
     } catch (error) {
-      console.log("Logout failed", error);
+      console.error("Logout failed:", error.response?.data || error.message); // Log error details
       toast.error("Logout failed");
     }
   };

@@ -26,9 +26,12 @@ const Signup = () => {
         },
         withCredentials: true
       });
+
       if (res.data.success) {
         toast.success(res.data.message);
         navigate("/login");
+      } else {
+        toast.error(res.data.message);
       }
     } catch (error) {
       console.error(error);
@@ -88,4 +91,6 @@ const Signup = () => {
 };
 
 export default Signup;
+
+
 

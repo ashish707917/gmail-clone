@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
-import { setAuthUser } from './redux/appSlice';
-import useGetAllEmails from './hooks/useGetAllEmails'; // ✅ Import fetch hook
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { setAuthUser } from "./redux/appSlice";
+import useGetAllEmails from "./hooks/useGetAllEmails";
 
 const Login = () => {
   const [input, setInput] = useState({
@@ -14,7 +14,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const fetchEmails = useGetAllEmails(); // ✅ Hook to get emails after login
+  const fetchEmails = useGetAllEmails();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/");
+    }
+  }, [navigate]);
 
   const changeHandler = (e) => {
     setInput({ ...input, [e.target.name]: e.target.value });
@@ -24,17 +31,18 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/user/login`, input, {
-        headers: {
-          "Content-Type": "application/json"
-        },
-        withCredentials: true
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/user/login`,
+        input,
+        {
+          headers: { "Content-Type": "application/json" }
+        }
+      );
 
       if (res.data.success) {
-        localStorage.setItem("token", res.data.token); // ✅ Save token in localStorage
+        localStorage.setItem("token", res.data.token);
         dispatch(setAuthUser(res.data.user));
-        await fetchEmails(); // ✅ Fetch emails for this user
+        await fetchEmails();
         toast.success(res.data.message);
         navigate("/");
       }
@@ -47,46 +55,42 @@ const Login = () => {
   };
 
   return (
-    <div className='flex items-center justify-center w-screen h-screen bg-[#f6f8fc]'>
+    <div className="flex items-center justify-center w-screen h-screen bg-[#f6f8fc]">
       <form
         onSubmit={submitHandler}
-        className='flex flex-col gap-3 bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm'
+        className="flex flex-col gap-3 bg-white p-6 rounded-lg shadow-md w-[90%] max-w-sm"
       >
-        <h1 className='font-bold text-2xl uppercase text-center my-2'>Login</h1>
-
+        <h1 className="font-bold text-2xl uppercase text-center my-2">Login</h1>
         <input
           onChange={changeHandler}
           value={input.email}
-          name='email'
-          type='email'
-          placeholder='Email'
-          className='border border-gray-400 rounded-md px-3 py-2'
+          name="email"
+          type="email"
+          placeholder="Email"
+          className="border border-gray-400 rounded-md px-3 py-2"
           disabled={loading}
           required
         />
-
         <input
           onChange={changeHandler}
           value={input.password}
-          name='password'
-          type='password'
-          placeholder='Password'
-          className='border border-gray-400 rounded-md px-3 py-2'
+          name="password"
+          type="password"
+          placeholder="Password"
+          className="border border-gray-400 rounded-md px-3 py-2"
           disabled={loading}
           required
         />
-
         <button
           type="submit"
           disabled={loading}
-          className='bg-gray-800 text-white py-2 rounded-md mt-2 disabled:opacity-50 transition'
+          className="bg-gray-800 text-white py-2 rounded-md mt-2 disabled:opacity-50 transition"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
-
-        <p className='text-sm text-center'>
-          Don&apos;t have an account?{" "}
-          <Link to="/signup" className='text-blue-600 underline'>
+        <p className="text-sm text-center">
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-blue-600 underline">
             Signup
           </Link>
         </p>
@@ -96,5 +100,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
